@@ -60,20 +60,20 @@ resource "google_firestore_index" "products_by_category" {
   project    = var.gcp_project_id
   database   = google_firestore_database.main.name
   collection = "products"
-  
+
   fields {
     field_path = "categoryId"
     order      = "ASCENDING"
   }
-  
+
   fields {
-    field_path = "name"
-    order      = "ASCENDING"
+    field_path = "lastSeen"
+    order      = "DESCENDING"
   }
-  
+
   fields {
     field_path = "__name__"
-    order      = "ASCENDING"
+    order      = "DESCENDING"
   }
 }
 
