@@ -14,42 +14,42 @@ resource "google_firestore_database" "main" {
 }
 
 # Firestore indexes for efficient queries
-resource "google_firestore_index" "transactions_by_date" {
+# Index for date range queries with store type filtering
+resource "google_firestore_index" "transactions_by_date_and_store_type" {
   project    = var.gcp_project_id
   database   = google_firestore_database.main.name
   collection = "transactions"
-  
-  fields {
-    field_path = "timestamp"
-    order      = "DESCENDING"
-  }
-  
+
   fields {
     field_path = "store_type"
     order      = "ASCENDING"
   }
-  
+
+  fields {
+    field_path = "timestamp"
+    order      = "DESCENDING"
+  }
+
   fields {
     field_path = "__name__"
     order      = "DESCENDING"
   }
 }
 
-resource "google_firestore_index" "transactions_by_store" {
+# Index for filtering by transaction ID (already handled by single-field index)
+# Firestore automatically creates single-field indexes
+
+# Index for date range queries only (for month queries)
+resource "google_firestore_index" "transactions_by_date" {
   project    = var.gcp_project_id
   database   = google_firestore_database.main.name
   collection = "transactions"
-  
-  fields {
-    field_path = "store_name"
-    order      = "ASCENDING"
-  }
-  
+
   fields {
     field_path = "timestamp"
     order      = "DESCENDING"
   }
-  
+
   fields {
     field_path = "__name__"
     order      = "DESCENDING"
