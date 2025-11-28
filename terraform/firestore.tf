@@ -41,19 +41,20 @@ resource "google_firestore_index" "transactions_by_date_and_store_type" {
 # NOTE: Single-field indexes (like timestamp only) are not needed - Firestore handles them automatically
 
 # Index for date range queries (match endpoint - skip logic)
-# Uses range filters on timestamp + equality on store_type
-resource "google_firestore_index" "transactions_by_date_range_and_store" {
+# Query order: where store_type == X, where timestamp >= Y, where timestamp <= Z
+# Requires: store_type (equality) THEN timestamp (range)
+resource "google_firestore_index" "transactions_by_store_and_date_range" {
   project    = var.gcp_project_id
   database   = google_firestore_database.main.name
   collection = "transactions"
 
   fields {
-    field_path = "timestamp"
+    field_path = "store_type"
     order      = "ASCENDING"
   }
 
   fields {
-    field_path = "store_type"
+    field_path = "timestamp"
     order      = "ASCENDING"
   }
 
