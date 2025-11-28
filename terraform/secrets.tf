@@ -122,13 +122,13 @@ resource "google_secret_manager_secret_iam_member" "enrich_migros_password" {
 }
 
 resource "google_secret_manager_secret_iam_member" "services_database_url" {
-  for_each = toset([
-    google_service_account.catalog_products.email,
-    google_service_account.catalog_categories.email,
-    google_service_account.consumer_transactions.email,
-    google_service_account.consumer_enrich.email,
-  ])
-  
+  for_each = tomap({
+    catalog_products      = google_service_account.catalog_products.email
+    catalog_categories    = google_service_account.catalog_categories.email
+    consumer_transactions = google_service_account.consumer_transactions.email
+    consumer_enrich       = google_service_account.consumer_enrich.email
+  })
+
   secret_id = google_secret_manager_secret.database_url.secret_id
   role      = "roles/secretmanager.secretAccessor"
   member    = "serviceAccount:${each.value}"

@@ -16,18 +16,13 @@ resource "google_cloud_run_v2_service" "catalog_products" {
     
     containers {
       # Placeholder image - will be updated by CI/CD
-      image = "gcr.io/${var.gcp_project_id}/catalog-products:latest"
+      image = "us-docker.pkg.dev/cloudrun/container/hello"
       
       env {
         name  = "NODE_ENV"
         value = "production"
       }
-      
-      env {
-        name  = "PORT"
-        value = "8080"
-      }
-      
+
       env {
         name  = "FIRESTORE_PROJECT_ID"
         value = var.gcp_project_id
@@ -99,18 +94,13 @@ resource "google_cloud_run_v2_service" "catalog_categories" {
     }
     
     containers {
-      image = "gcr.io/${var.gcp_project_id}/catalog-categories:latest"
+      image = "us-docker.pkg.dev/cloudrun/container/hello"
       
       env {
         name  = "NODE_ENV"
         value = "production"
       }
-      
-      env {
-        name  = "PORT"
-        value = "8080"
-      }
-      
+
       env {
         name  = "FIRESTORE_PROJECT_ID"
         value = var.gcp_project_id
@@ -171,18 +161,13 @@ resource "google_cloud_run_v2_service" "consumer_transactions" {
     }
     
     containers {
-      image = "gcr.io/${var.gcp_project_id}/consumer-transactions:latest"
+      image = "us-docker.pkg.dev/cloudrun/container/hello"
       
       env {
         name  = "NODE_ENV"
         value = "production"
       }
-      
-      env {
-        name  = "PORT"
-        value = "8080"
-      }
-      
+
       env {
         name  = "FIRESTORE_PROJECT_ID"
         value = var.gcp_project_id
@@ -248,18 +233,13 @@ resource "google_cloud_run_v2_service" "consumer_enrich" {
     }
     
     containers {
-      image = "gcr.io/${var.gcp_project_id}/consumer-enrich:latest"
+      image = "us-docker.pkg.dev/cloudrun/container/hello"
       
       env {
         name  = "NODE_ENV"
         value = "production"
       }
-      
-      env {
-        name  = "PORT"
-        value = "8080"
-      }
-      
+
       env {
         name  = "STORAGE_BUCKET"
         value = google_storage_bucket.files.name
@@ -359,7 +339,7 @@ resource "google_cloud_run_v2_service" "webapp" {
     }
     
     containers {
-      image = "gcr.io/${var.gcp_project_id}/consumer-webapp:latest"
+      image = "us-docker.pkg.dev/cloudrun/container/hello"
       
       env {
         name  = "VITE_API_BASE_URL"

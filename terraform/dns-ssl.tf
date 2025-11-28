@@ -64,11 +64,12 @@ resource "google_compute_backend_service" "api" {
   port_name             = "http"
   timeout_sec           = 30
   enable_cdn            = false
-  
+  load_balancing_scheme = "EXTERNAL_MANAGED"
+
   backend {
     group = google_compute_region_network_endpoint_group.api_neg.id
   }
-  
+
   log_config {
     enable      = true
     sample_rate = 1.0
@@ -82,19 +83,26 @@ resource "google_compute_backend_service" "webapp" {
   port_name             = "http"
   timeout_sec           = 30
   enable_cdn            = true
-  
+  load_balancing_scheme = "EXTERNAL_MANAGED"
+
   backend {
     group = google_compute_region_network_endpoint_group.webapp_neg.id
   }
-  
+
   cdn_policy {
     cache_mode        = "CACHE_ALL_STATIC"
     default_ttl       = 3600
     max_ttl           = 86400
     client_ttl        = 3600
     negative_caching  = true
+
+    cache_key_policy {
+      include_host         = true
+      include_protocol     = true
+      include_query_string = false
+    }
   }
-  
+
   log_config {
     enable      = true
     sample_rate = 1.0
@@ -105,32 +113,6 @@ resource "google_compute_backend_service" "webapp" {
 resource "google_compute_url_map" "api" {
   name            = "api-url-map"
   default_service = google_compute_backend_service.api.id
-  
-  host_rule {
-    hosts        = ["api.${var.domain_name}"]
-    path_matcher = "api-paths"
-  }
-  
-  path_matcher {
-    name            = "api-paths"
-    default_service = google_compute_backend_service.api.id
-    
-    # Route /products and /categories to catalog services
-    path_rule {
-      paths   = ["/products", "/products/*"]
-      service = google_compute_region_network_endpoint_group.api_neg.id
-    }
-    
-    path_rule {
-      paths   = ["/categories", "/categories/*"]
-      service = google_compute_region_network_endpoint_group.api_neg.id
-    }
-    
-    path_rule {
-      paths   = ["/transactions", "/transactions/*"]
-      service = google_compute_region_network_endpoint_group.api_neg.id
-    }
-  }
 }
 
 # URL Map for Webapp

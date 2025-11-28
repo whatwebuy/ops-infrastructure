@@ -35,3 +35,20 @@ output "secret_manager_secrets" {
     api_keys           = google_secret_manager_secret.api_keys.name
   }
 }
+
+output "artifact_registry" {
+  description = "Artifact Registry repository details"
+  value = {
+    repository_id = google_artifact_registry_repository.docker_images.repository_id
+    location      = google_artifact_registry_repository.docker_images.location
+    repository_url = "${google_artifact_registry_repository.docker_images.location}-docker.pkg.dev/${var.gcp_project_id}/${google_artifact_registry_repository.docker_images.repository_id}"
+  }
+}
+
+output "github_actions_config" {
+  description = "GitHub Actions configuration values for repository secrets"
+  value = {
+    service_account      = google_service_account.github_actions.email
+    workload_identity_provider = google_iam_workload_identity_pool_provider.github.name
+  }
+}

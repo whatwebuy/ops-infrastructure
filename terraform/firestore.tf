@@ -77,18 +77,19 @@ resource "google_firestore_index" "products_by_category" {
   }
 }
 
-resource "google_firestore_index" "categories_search" {
-  project    = var.gcp_project_id
-  database   = google_firestore_database.main.name
-  collection = "categories"
-  
-  fields {
-    field_path = "name_de"
-    order      = "ASCENDING"
-  }
-  
-  fields {
-    field_path = "__name__"
-    order      = "ASCENDING"
-  }
-}
+# Single field index not needed - Firestore handles this automatically
+# resource "google_firestore_index" "categories_search" {
+#   project    = var.gcp_project_id
+#   database   = google_firestore_database.main.name
+#   collection = "categories"
+#
+#   fields {
+#     field_path = "name_de"
+#     order      = "ASCENDING"
+#   }
+#
+#   fields {
+#     field_path = "__name__"
+#     order      = "ASCENDING"
+#   }
+# }
