@@ -38,23 +38,7 @@ resource "google_firestore_index" "transactions_by_date_and_store_type" {
 
 # Index for filtering by transaction ID (already handled by single-field index)
 # Firestore automatically creates single-field indexes
-
-# Index for date range queries only (for month queries)
-resource "google_firestore_index" "transactions_by_date" {
-  project    = var.gcp_project_id
-  database   = google_firestore_database.main.name
-  collection = "transactions"
-
-  fields {
-    field_path = "timestamp"
-    order      = "DESCENDING"
-  }
-
-  fields {
-    field_path = "__name__"
-    order      = "DESCENDING"
-  }
-}
+# NOTE: Single-field indexes (like timestamp only) are not needed - Firestore handles them automatically
 
 resource "google_firestore_index" "products_by_category" {
   project    = var.gcp_project_id

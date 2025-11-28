@@ -19,11 +19,6 @@ resource "google_cloud_run_v2_service" "catalog_products" {
       image = "${var.gcp_region}-docker.pkg.dev/${var.gcp_project_id}/${google_artifact_registry_repository.docker_images.repository_id}/catalog-products:latest"
       
       env {
-        name  = "PORT"
-        value = "8080"
-      }
-
-      env {
         name  = "NODE_ENV"
         value = "production"
       }
@@ -105,11 +100,6 @@ resource "google_cloud_run_v2_service" "catalog_categories" {
       image = "${var.gcp_region}-docker.pkg.dev/${var.gcp_project_id}/${google_artifact_registry_repository.docker_images.repository_id}/catalog-categories:latest"
       
       env {
-        name  = "PORT"
-        value = "8080"
-      }
-
-      env {
         name  = "NODE_ENV"
         value = "production"
       }
@@ -178,11 +168,6 @@ resource "google_cloud_run_v2_service" "consumer_transactions" {
     containers {
       # Image from Artifact Registry - updated by CI/CD
       image = "${var.gcp_region}-docker.pkg.dev/${var.gcp_project_id}/${google_artifact_registry_repository.docker_images.repository_id}/consumer-transactions:latest"
-
-      env {
-        name  = "PORT"
-        value = "8080"
-      }
 
       env {
         name  = "NODE_ENV"
