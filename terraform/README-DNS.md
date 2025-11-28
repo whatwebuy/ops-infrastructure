@@ -139,3 +139,7 @@ If automatic configuration fails, manually add these records in GoDaddy:
 - [GoDaddy Terraform Provider](https://registry.terraform.io/providers/n3integration/godaddy/latest/docs)
 - [Google Managed SSL Certificates](https://cloud.google.com/load-balancing/docs/ssl-certificates/google-managed-certs)
 - [Terraform GitHub Actions](https://developer.hashicorp.com/terraform/tutorials/automation/github-actions)
+
+## Status
+
+GitHub secrets configured and ready for DNS automation.
