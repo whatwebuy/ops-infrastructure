@@ -15,8 +15,8 @@ resource "google_cloud_run_v2_service" "catalog_products" {
     }
     
     containers {
-      # Placeholder image - will be updated by CI/CD
-      image = "us-docker.pkg.dev/cloudrun/container/hello"
+      # Image from Artifact Registry - updated by CI/CD
+      image = "${var.gcp_region}-docker.pkg.dev/${var.gcp_project_id}/${google_artifact_registry_repository.docker_images.repository_id}/catalog-products:latest"
       
       env {
         name  = "NODE_ENV"
@@ -76,6 +76,8 @@ resource "google_cloud_run_v2_service" "catalog_products" {
   lifecycle {
     ignore_changes = [
       template[0].containers[0].image,
+      client,
+      client_version,
     ]
   }
 }
@@ -84,17 +86,18 @@ resource "google_cloud_run_v2_service" "catalog_products" {
 resource "google_cloud_run_v2_service" "catalog_categories" {
   name     = "catalog-categories"
   location = var.gcp_region
-  
+
   template {
     service_account = google_service_account.catalog_categories.email
-    
+
     scaling {
       min_instance_count = 0
       max_instance_count = 10
     }
-    
+
     containers {
-      image = "us-docker.pkg.dev/cloudrun/container/hello"
+      # Image from Artifact Registry - updated by CI/CD
+      image = "${var.gcp_region}-docker.pkg.dev/${var.gcp_project_id}/${google_artifact_registry_repository.docker_images.repository_id}/catalog-categories:latest"
       
       env {
         name  = "NODE_ENV"
@@ -139,10 +142,12 @@ resource "google_cloud_run_v2_service" "catalog_categories" {
     google_project_service.required_apis,
     google_firestore_database.main
   ]
-  
+
   lifecycle {
     ignore_changes = [
       template[0].containers[0].image,
+      client,
+      client_version,
     ]
   }
 }
@@ -151,17 +156,18 @@ resource "google_cloud_run_v2_service" "catalog_categories" {
 resource "google_cloud_run_v2_service" "consumer_transactions" {
   name     = "consumer-transactions"
   location = var.gcp_region
-  
+
   template {
     service_account = google_service_account.consumer_transactions.email
-    
+
     scaling {
       min_instance_count = 0
       max_instance_count = 10
     }
-    
+
     containers {
-      image = "us-docker.pkg.dev/cloudrun/container/hello"
+      # Image from Artifact Registry - updated by CI/CD
+      image = "${var.gcp_region}-docker.pkg.dev/${var.gcp_project_id}/${google_artifact_registry_repository.docker_images.repository_id}/consumer-transactions:latest"
       
       env {
         name  = "NODE_ENV"
@@ -211,10 +217,12 @@ resource "google_cloud_run_v2_service" "consumer_transactions" {
     google_project_service.required_apis,
     google_firestore_database.main
   ]
-  
+
   lifecycle {
     ignore_changes = [
       template[0].containers[0].image,
+      client,
+      client_version,
     ]
   }
 }
@@ -223,17 +231,18 @@ resource "google_cloud_run_v2_service" "consumer_transactions" {
 resource "google_cloud_run_v2_service" "consumer_enrich" {
   name     = "consumer-enrich"
   location = var.gcp_region
-  
+
   template {
     service_account = google_service_account.consumer_enrich.email
-    
+
     scaling {
       min_instance_count = 0
       max_instance_count = 5
     }
-    
+
     containers {
-      image = "us-docker.pkg.dev/cloudrun/container/hello"
+      # Image from Artifact Registry - updated by CI/CD
+      image = "${var.gcp_region}-docker.pkg.dev/${var.gcp_project_id}/${google_artifact_registry_repository.docker_images.repository_id}/consumer-enrich:latest"
       
       env {
         name  = "NODE_ENV"
@@ -321,6 +330,8 @@ resource "google_cloud_run_v2_service" "consumer_enrich" {
   lifecycle {
     ignore_changes = [
       template[0].containers[0].image,
+      client,
+      client_version,
     ]
   }
 }
@@ -329,17 +340,18 @@ resource "google_cloud_run_v2_service" "consumer_enrich" {
 resource "google_cloud_run_v2_service" "webapp" {
   name     = "consumer-webapp"
   location = var.gcp_region
-  
+
   template {
     service_account = google_service_account.webapp.email
-    
+
     scaling {
       min_instance_count = 0
       max_instance_count = 20
     }
-    
+
     containers {
-      image = "us-docker.pkg.dev/cloudrun/container/hello"
+      # Image from Artifact Registry - updated by CI/CD
+      image = "${var.gcp_region}-docker.pkg.dev/${var.gcp_project_id}/${google_artifact_registry_repository.docker_images.repository_id}/consumer-webapp:latest"
       
       env {
         name  = "VITE_API_BASE_URL"
@@ -378,10 +390,12 @@ resource "google_cloud_run_v2_service" "webapp" {
   depends_on = [
     google_project_service.required_apis
   ]
-  
+
   lifecycle {
     ignore_changes = [
       template[0].containers[0].image,
+      client,
+      client_version,
     ]
   }
 }
