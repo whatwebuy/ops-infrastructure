@@ -205,27 +205,61 @@ resource "google_compute_global_forwarding_rule" "webapp_http" {
   load_balancing_scheme = "EXTERNAL_MANAGED"
 }
 
-# Outputs for DNS configuration in GoDaddy
+# GoDaddy DNS Records - Automatically configured via API
+resource "godaddy_domain_record" "api" {
+  domain = var.domain_name
+
+  record {
+    name = "api"
+    type = "A"
+    data = google_compute_global_address.api.address
+    ttl  = 600
+  }
+}
+
+resource "godaddy_domain_record" "app" {
+  domain = var.domain_name
+
+  record {
+    name = "app"
+    type = "A"
+    data = google_compute_global_address.webapp.address
+    ttl  = 600
+  }
+}
+
+resource "godaddy_domain_record" "root" {
+  domain = var.domain_name
+
+  record {
+    name = "@"
+    type = "A"
+    data = google_compute_global_address.webapp.address
+    ttl  = 600
+  }
+}
+
+# Outputs for DNS configuration verification
 output "dns_records" {
-  description = "DNS records to configure in GoDaddy"
+  description = "DNS records configured in GoDaddy"
   value = {
     api_a_record = {
       name  = "api"
       type  = "A"
       value = google_compute_global_address.api.address
-      ttl   = 300
+      ttl   = 600
     }
     webapp_a_record = {
       name  = "app"
       type  = "A"
       value = google_compute_global_address.webapp.address
-      ttl   = 300
+      ttl   = 600
     }
     root_a_record = {
       name  = "@"
       type  = "A"
       value = google_compute_global_address.webapp.address
-      ttl   = 300
+      ttl   = 600
     }
   }
 }

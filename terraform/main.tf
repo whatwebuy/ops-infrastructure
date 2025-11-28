@@ -1,13 +1,17 @@
 terraform {
   required_version = ">= 1.5.0"
-  
+
   required_providers {
     google = {
       source  = "hashicorp/google"
       version = "~> 5.0"
     }
+    godaddy = {
+      source  = "n3integration/godaddy"
+      version = "~> 1.9"
+    }
   }
-  
+
   backend "gcs" {
     bucket = "whatwebuy-terraform-state"
     prefix = "terraform/state"
@@ -17,6 +21,11 @@ terraform {
 provider "google" {
   project = var.gcp_project_id
   region  = var.gcp_region
+}
+
+provider "godaddy" {
+  key    = var.godaddy_api_key
+  secret = var.godaddy_api_secret
 }
 
 # Enable required GCP APIs

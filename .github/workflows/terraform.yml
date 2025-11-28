@@ -62,12 +62,15 @@ jobs:
       - name: Terraform Plan
         working-directory: terraform
         id: plan
+        env:
+          TF_VAR_godaddy_api_key: ${{ secrets.GODADDY_API_KEY }}
+          TF_VAR_godaddy_api_secret: ${{ secrets.GODADDY_API_SECRET }}
         run: |
           terraform plan -no-color -out=tfplan \
             -var="gcp_project_id=${{ secrets.GCP_PROJECT_ID }}" \
             -var="gcp_region=${{ env.GCP_REGION }}" \
             -var="github_org=${{ github.repository_owner }}"
-          
+
           # Save plan output for PR comment
           terraform show -no-color tfplan > plan_output.txt
       
@@ -139,6 +142,9 @@ jobs:
       
       - name: Terraform Apply
         working-directory: terraform
+        env:
+          TF_VAR_godaddy_api_key: ${{ secrets.GODADDY_API_KEY }}
+          TF_VAR_godaddy_api_secret: ${{ secrets.GODADDY_API_SECRET }}
         run: |
           terraform apply -auto-approve \
             -var="gcp_project_id=${{ secrets.GCP_PROJECT_ID }}" \

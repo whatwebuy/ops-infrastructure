@@ -39,3 +39,15 @@ variable "github_repos" {
     webapp       = "consumer-webapp"
   }
 }
+
+variable "godaddy_api_key" {
+  description = "GoDaddy API Key"
+  type        = string
+  sensitive   = true
+}
+
+variable "godaddy_api_secret" {
+  description = "GoDaddy API Secret"
+  type        = string
+  sensitive   = true
+}
