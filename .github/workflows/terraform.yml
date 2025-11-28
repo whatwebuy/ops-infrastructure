@@ -1,0 +1,160 @@
+name: Terraform CI/CD
+
+on:
+  pull_request:
+    paths:
+      - 'terraform/**'
+      - '.github/workflows/terraform.yml'
+  push:
+    branches:
+      - main
+    paths:
+      - 'terraform/**'
+      - '.github/workflows/terraform.yml'
+
+env:
+  TF_VERSION: '1.5.0'
+  GCP_REGION: 'europe-west6'
+
+jobs:
+  terraform-plan:
+    name: Terraform Plan
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    permissions:
+      contents: read
+      pull-requests: write
+      id-token: write
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+      
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+      
+      - name: Setup gcloud CLI
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          version: 'latest'
+      
+      - name: Terraform Init
+        working-directory: terraform
+        run: terraform init
+      
+      - name: Terraform Format Check
+        working-directory: terraform
+        run: terraform fmt -check -recursive
+        continue-on-error: true
+      
+      - name: Terraform Validate
+        working-directory: terraform
+        run: terraform validate
+      
+      - name: Terraform Plan
+        working-directory: terraform
+        id: plan
+        run: |
+          terraform plan -no-color -out=tfplan \
+            -var="gcp_project_id=${{ secrets.GCP_PROJECT_ID }}" \
+            -var="gcp_region=${{ env.GCP_REGION }}" \
+            -var="github_org=${{ github.repository_owner }}"
+          
+          # Save plan output for PR comment
+          terraform show -no-color tfplan > plan_output.txt
+      
+      - name: Comment PR with Plan
+        uses: actions/github-script@v7
+        if: github.event_name == 'pull_request'
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require('fs');
+            const plan = fs.readFileSync('terraform/plan_output.txt', 'utf8');
+            const output = `#### Terraform Plan 📖
+            
+            <details><summary>Show Plan</summary>
+            
+            \`\`\`terraform
+            ${plan}
+            \`\`\`
+            
+            </details>
+            
+            *Pushed by: @${{ github.actor }}, Action: \`${{ github.event_name }}\`*`;
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: output
+            });
+      
+      - name: Upload Plan Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: tfplan
+          path: terraform/tfplan
+          retention-days: 5
+
+  terraform-apply:
+    name: Terraform Apply
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    permissions:
+      contents: read
+      id-token: write
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+      
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+      
+      - name: Setup gcloud CLI
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          version: 'latest'
+      
+      - name: Terraform Init
+        working-directory: terraform
+        run: terraform init
+      
+      - name: Terraform Apply
+        working-directory: terraform
+        run: |
+          terraform apply -auto-approve \
+            -var="gcp_project_id=${{ secrets.GCP_PROJECT_ID }}" \
+            -var="gcp_region=${{ env.GCP_REGION }}" \
+            -var="github_org=${{ github.repository_owner }}"
+      
+      - name: Output Terraform Results
+        working-directory: terraform
+        run: |
+          echo "### Terraform Apply Completed ✅" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "#### Outputs:" >> $GITHUB_STEP_SUMMARY
+          terraform output -json | jq -r 'to_entries[] | "- **\(.key)**: \(.value.value)"' >> $GITHUB_STEP_SUMMARY
+      
+      - name: Notify on Failure
+        if: failure()
+        run: |
+          echo "### ⚠️ Terraform Apply Failed" >> $GITHUB_STEP_SUMMARY
+          echo "Please check the logs for details." >> $GITHUB_STEP_SUMMARY
