@@ -19,17 +19,22 @@ resource "google_cloud_run_v2_service" "catalog_products" {
       image = "${var.gcp_region}-docker.pkg.dev/${var.gcp_project_id}/${google_artifact_registry_repository.docker_images.repository_id}/catalog-products:latest"
       
       env {
+        name  = "PORT"
+        value = "8080"
+      }
+
+      env {
         name  = "NODE_ENV"
         value = "production"
       }
 
       env {
-        name  = "FIRESTORE_PROJECT_ID"
+        name  = "GCP_PROJECT_ID"
         value = var.gcp_project_id
       }
-      
+
       env {
-        name  = "CATALOG_CATEGORIES_URL"
+        name  = "CATEGORIES_API_URL"
         value = "https://catalog-categories-${data.google_project.project.number}.${var.gcp_region}.run.app"
       }
       
@@ -100,15 +105,20 @@ resource "google_cloud_run_v2_service" "catalog_categories" {
       image = "${var.gcp_region}-docker.pkg.dev/${var.gcp_project_id}/${google_artifact_registry_repository.docker_images.repository_id}/catalog-categories:latest"
       
       env {
+        name  = "PORT"
+        value = "8080"
+      }
+
+      env {
         name  = "NODE_ENV"
         value = "production"
       }
 
       env {
-        name  = "FIRESTORE_PROJECT_ID"
+        name  = "GCP_PROJECT_ID"
         value = var.gcp_project_id
       }
-      
+
       resources {
         limits = {
           cpu    = "1"
@@ -168,17 +178,22 @@ resource "google_cloud_run_v2_service" "consumer_transactions" {
     containers {
       # Image from Artifact Registry - updated by CI/CD
       image = "${var.gcp_region}-docker.pkg.dev/${var.gcp_project_id}/${google_artifact_registry_repository.docker_images.repository_id}/consumer-transactions:latest"
-      
+
+      env {
+        name  = "PORT"
+        value = "8080"
+      }
+
       env {
         name  = "NODE_ENV"
         value = "production"
       }
 
       env {
-        name  = "FIRESTORE_PROJECT_ID"
+        name  = "GCP_PROJECT_ID"
         value = var.gcp_project_id
       }
-      
+
       env {
         name  = "CATALOG_PRODUCTS_URL"
         value = "https://catalog-products-${data.google_project.project.number}.${var.gcp_region}.run.app"
