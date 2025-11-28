@@ -75,6 +75,13 @@ resource "google_project_iam_member" "github_actions_run_admin" {
   member  = "serviceAccount:${google_service_account.github_actions.email}"
 }
 
+# Grant GitHub Actions SA permissions to read secrets (needed for terraform state)
+resource "google_project_iam_member" "github_actions_secret_accessor" {
+  project = var.gcp_project_id
+  role    = "roles/secretmanager.secretAccessor"
+  member  = "serviceAccount:${google_service_account.github_actions.email}"
+}
+
 # Grant GitHub Actions SA permissions to act as Cloud Run service accounts
 resource "google_service_account_iam_member" "github_actions_service_account_user" {
   for_each = tomap({
